@@ -1,1 +1,65 @@
-🌊 Smart Water Sampling System (IoT-Advanced)Giải pháp lấy mẫu nước tự động tích hợp giám sát vị trí GIS và quản lý lịch trình thông minh.📋 Giới thiệuHệ thống lấy mẫu nước thông minh được thiết kế nhằm hiện đại hóa quy trình thu thập mẫu nước tại hiện trường. Thay vì vận hành thủ công, người dùng có thể điều khiển hệ thống từ xa thông qua giao diện Web, thiết lập lịch trình tự động và giám sát trực quan vị trí trạm bơm trên bản đồ vệ tinh.🏗 Kiến trúc hệ thốngDự án được xây dựng dựa trên mô hình Client-Server-Edge:Edge Device (ESP32): Thu thập dữ liệu cảm biến siêu âm, điều khiển Relay, hiển thị LCD và thực thi thuật toán ngắt an toàn tại chỗ.Cloud/Server (PHP & MySQL): Trung tâm xử lý dữ liệu, lưu trữ lịch trình (Scheduler) và quản lý nhật ký hệ thống (Logs).Web Dashboard (Frontend): Giao diện tương tác người dùng, tích hợp thư viện Leaflet.js cho bản đồ và AJAX để cập nhật trạng thái không cần tải lại trang.🚀 Tính năng chuyên sâu1. Hệ thống Lập lịch (Smart Scheduler)Precision: Cho phép cài đặt chính xác thời gian bắt đầu và thời lượng lấy mẫu (tính bằng giây).Batch Processing: Hỗ trợ lập lịch đồng thời cho nhiều bơm hoặc riêng lẻ.Queue Management: Các lịch trình được lưu vào hàng đợi Database và tự động chuyển trạng thái từ pending sang completed sau khi thực thi.2. Giám sát GIS (Geographic Information System)Dynamic Markers: Hiển thị vị trí thực tế của các trạm bơm trên bản đồ.Real-time Update: Cho phép Admin thay đổi vị trí trạm bằng cách kéo thả marker, dữ liệu tọa độ sẽ được đồng bộ ngay lập tức về Server qua API.3. Cơ chế An toàn & Bảo mậtHardware Failsafe: ESP32 tự động ghi đè lệnh từ Server nếu phát hiện mực nước chạm ngưỡng nguy hiểm.Authentication: Hệ thống phân quyền Admin/User để đảm bảo chỉ người có thẩm quyền mới được phép điều khiển bơm.🔌 Đặc tả API (API Specifications)EndpointMethodTham sốMô tả/get_command.phpGETNoneESP32 lấy lệnh điều khiển hiện tại từ Server./get_command.phpGETstatus=fullESP32 báo cáo trạng thái đầy nước về Server./update_coords.phpPOSTpump_num, lat, lngCập nhật tọa độ trạm bơm từ bản đồ.🛠 Hướng dẫn triển khai (Deployment)Yêu cầu hệ thống:Phần cứng: ESP32, HC-SR04, Relay 2-Channel, LCD 16x2 I2C.Môi trường Server: XAMPP/WAMP (PHP 7.4+, MySQL 5.7+).Các bước cài đặt:Cấu trúc Database: Nhập file SQL (đi kèm trong folder /db) để tạo các bảng users, pump_schedule, pump_locations, và logs.Cấu hình Server: Chỉnh sửa file database.php để khai báo đúng thông tin kết nối MySQL.Nạp Code ESP32:Mở file .ino trong Arduino IDE.Cập nhật ssid (WiFi) và server_url (Địa chỉ IP máy tính chạy XAMPP).Chọn board ESP32 Dev Module và nhấn nạp.📈 Kết quả đạt đượcKhả năng mở rộng: Có thể quản lý hàng chục trạm bơm cùng lúc trên một bản đồ.Độ tin cậy: Hệ thống tự phục hồi sau khi mất kết nối WiFi.Trải nghiệm người dùng: Giao diện Dashboard chuẩn Responsive (tương thích cả điện thoại và máy tính).👥 Thành viên nhóm thực hiệnĐinh Hoàng Thuận - Lập trình hệ thống & NhúngNguyễn Quốc Khánh - Phát triển Web DashboardTrần Kiêm Quang Minh - Quản lý CSDL & APIHồ Anh Nguyên - Thiết kế phần cứng & Thử nghiệmDự án thuộc học phần IoT nâng cao. Mọi hành vi sao chép vui lòng ghi rõ nguồn.
+# 🌊 Smart Water Sampling System (IoT-Advanced)
+> **Giải pháp lấy mẫu nước tự động tích hợp giám sát vị trí GIS và quản lý lịch trình thông minh.**
+
+Hệ thống lấy mẫu nước thông minh được thiết kế nhằm hiện đại hóa quy trình thu thập mẫu nước tại hiện trường. Thay vì vận hành thủ công, người dùng có thể điều khiển từ xa qua Dashboard, thiết lập lịch trình tự động và giám sát trực quan vị trí trạm bơm trên bản đồ vệ tinh.
+
+
+
+## 🏗 Kiến trúc hệ thống
+Dự án sử dụng mô hình **Client-Server-Edge**:
+* **Edge Device (ESP32):** Thu thập dữ liệu cảm biến siêu âm, điều khiển Relay, hiển thị LCD và thực thi thuật toán ngắt an toàn tại chỗ.
+* **Cloud/Server (PHP & MySQL):** Trung tâm xử lý dữ liệu, lưu trữ lịch trình (Scheduler) và quản lý nhật ký hệ thống (Logs).
+* **Web Dashboard (Frontend):** Giao diện tương tác người dùng, tích hợp **Leaflet.js** cho bản đồ và **AJAX** để cập nhật trạng thái thời gian thực.
+
+
+
+## 🚀 Tính năng nổi bật
+
+### 1. Điều khiển đa chế độ (Control Modes)
+* **Manual Control:** Bật/Tắt các bơm trực tiếp từ giao diện Web.
+* **Smart Scheduler:** Lập lịch chạy bơm theo giờ cố định với thời lượng (giây) tùy chỉnh. 
+* **Batch Action:** Hỗ trợ điều khiển đồng thời hoặc riêng lẻ từng bơm.
+
+### 2. Giám sát GIS (Bản đồ số)
+* Hiển thị vị trí trạm bơm trên nền tảng **OpenStreetMap**.
+* **Drag & Drop:** Cho phép kéo thả marker trên bản đồ để cập nhật tọa độ thực tế của trạm bơm về hệ thống ngay lập tức.
+
+### 3. Cơ chế An toàn & Bảo mật
+* **Hardware Failsafe:** ESP32 tự động ngắt bơm khi mực nước chạm ngưỡng an toàn (`MAX_LEVEL`) bất kể lệnh từ Server.
+* **Role-based Access:** Phân quyền Admin quản trị để bảo mật hệ thống điều khiển.
+
+## 🔌 Đặc tả kết nối (Pinout)
+
+| Linh kiện | Chân ESP32 | Chức năng |
+| :--- | :--- | :--- |
+| **Relay 1** | GPIO 5 | Điều khiển Bơm 1 |
+| **Relay 2** | GPIO 18 | Điều khiển Bơm 2 |
+| **Cảm biến Siêu âm (Trig)** | GPIO 3 | Phát tín hiệu đo mức nước |
+| **Cảm biến Siêu âm (Echo)** | GPIO 2 | Nhận tín hiệu phản hồi |
+| **LCD 16x2 (SDA/SCL)** | GPIO 6 / 7 | Hiển thị thông số tại chỗ |
+
+## 🌐 API Specifications
+
+* `GET /get_command.php`: ESP32 lấy lệnh điều khiển và ngưỡng MAX từ Server.
+* `GET /get_command.php?status=full`: ESP32 báo cáo trạng thái đầy nước để Server đồng bộ giao diện.
+* `POST /update_coords.php`: Cập nhật tọa độ (Lat/Lng) từ bản đồ Web vào Database.
+
+## 🛠 Hướng dẫn triển khai
+
+### 1. Yêu cầu hệ thống
+* **Hardware:** ESP32 Dev Kit, HC-SR04, Module Relay 2 kênh, LCD I2C.
+* **Software:** XAMPP (PHP 7.4+, MySQL), Arduino IDE.
+
+### 2. Cài đặt
+1.  **Database:** Import file SQL vào PHPMyAdmin để tạo các bảng `pump_schedule`, `pump_locations`, và `logs`.
+2.  **Web Server:** Copy thư mục code vào `htdocs`, cấu hình thông tin trong `database.php`.
+3.  **Firmware:** Mở file `.ino`, cập nhật thông tin WiFi và IP Server, sau đó nạp vào ESP32.
+
+## 👥 Thành viên thực hiện
+* **Đinh Hoàng Thuận**
+* **Nguyễn Quốc Khánh**
+* **Trần Kiêm Quang Minh**
+* **Hồ Anh Nguyên**
+
+---
+*Dự án được phát triển cho mục đích nghiên cứu và quản lý tài nguyên nước.*
